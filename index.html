@@ -388,7 +388,7 @@
       line-height: 1.65;
     }
 
-    /* ─── CTA ─── */
+    /* ─── CTA + Contact ─── */
     .cta-section {
       padding: 90px 0 120px;
       border-top: 1px solid var(--border);
@@ -414,12 +414,80 @@
       letter-spacing: -2px;
       margin-bottom: 18px;
     }
-    .cta-section p {
+    .cta-section > .container > p {
       font-size: 17px;
       color: var(--muted);
       line-height: 1.7;
       max-width: 460px;
+      margin: 0 auto 56px;
+    }
+
+    /* Contact form */
+    .contact-form {
+      max-width: 480px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-align: left;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: var(--muted);
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: rgba(45,212,191,0.5);
+    }
+    .contact-form textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+    .contact-form .send-btn {
+      background: var(--teal);
+      color: #0d1b2a;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: -0.2px;
+    }
+    .contact-form .send-btn:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+    .contact-form .send-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      transform: none;
+    }
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 24px;
+      background: rgba(45,212,191,0.07);
+      border: 1px solid rgba(45,212,191,0.25);
+      border-radius: 12px;
+      color: var(--teal);
+      font-size: 15px;
+      font-weight: 500;
     }
 
     /* ─── Footer ─── */
@@ -660,7 +728,7 @@
     </div>
   </section>
 
-  <!-- ─── CTA ─── -->
+  <!-- ─── CTA + Contact ─── -->
   <section class="cta-section">
     <div class="container">
       <div class="cta-badge">
@@ -668,7 +736,38 @@
         In development — 2026
       </div>
       <h2>App launching soon.</h2>
-      <p>Follow along as we build in public. Updates on Instagram and LinkedIn.</p>
+      <p>Have a question or want to follow along? Get in touch.</p>
+
+      <!-- Contact form via Web3Forms — free, no backend needed -->
+      <!-- SETUP: Get your free access key at web3forms.com and replace YOUR_ACCESS_KEY below -->
+      <form class="contact-form" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="e32b4233-216a-49d4-b17f-6d048ca090d6" />
+        <input type="hidden" name="from_name" value="SeizureSafe Website" />
+        <input type="hidden" name="redirect" value="false" />
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Your email address"
+          required
+          autocomplete="email"
+        />
+        <input
+          type="text"
+          name="subject"
+          placeholder="Subject"
+          required
+        />
+        <textarea
+          name="message"
+          placeholder="Your message (optional)"
+        ></textarea>
+        <button type="submit" class="send-btn" id="sendBtn">Send message</button>
+      </form>
+
+      <div class="form-success" id="formSuccess">
+        Message sent. We'll be in touch soon.
+      </div>
     </div>
   </section>
 
@@ -678,7 +777,7 @@
 
     <div class="social-links">
       <!-- Instagram — replace YOUR_INSTAGRAM_HANDLE with your handle e.g. seizuresafe -->
-      <a href="https://instagram.com/YOUR_INSTAGRAM_HANDLE" class="social-link" target="_blank" rel="noopener" aria-label="Follow SeizureSafe on Instagram">
+      <a href="https://www.instagram.com/seizuresafe_official/" class="social-link" target="_blank" rel="noopener" aria-label="Follow SeizureSafe on Instagram">
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
           <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
@@ -686,7 +785,7 @@
         </svg>
       </a>
       <!-- LinkedIn — replace YOUR_LINKEDIN_URL with your company page URL -->
-      <a href="https://linkedin.com/company/YOUR_LINKEDIN_URL" class="social-link" target="_blank" rel="noopener" aria-label="SeizureSafe on LinkedIn">
+      <a href="https://www.linkedin.com/company/seizuresafe" class="social-link" target="_blank" rel="noopener" aria-label="SeizureSafe on LinkedIn">
         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
           <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
           <circle cx="4" cy="4" r="2"/>
@@ -703,6 +802,41 @@
 </div><!-- /page -->
 
 <script>
+  // ─── Contact Form ──────────────────────────────────────────────────────────
+  const contactForm = document.getElementById('contactForm');
+  const sendBtn     = document.getElementById('sendBtn');
+  const formSuccess = document.getElementById('formSuccess');
+
+  if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+
+      try {
+        const data = new FormData(contactForm);
+        const res  = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: data
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          contactForm.style.display = 'none';
+          formSuccess.style.display = 'block';
+        } else {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Send message';
+          alert('Something went wrong. Please try again.');
+        }
+      } catch {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send message';
+        alert('Something went wrong. Please try again.');
+      }
+    });
+  }
+
   // ─── Video Carousel ────────────────────────────────────────────────────────
   const track   = document.getElementById('track');
   const prevBtn = document.getElementById('prevBtn');
