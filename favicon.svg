@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Navy background -->
+  <rect width="100" height="100" rx="22" fill="#0d1b2a"/>
+  <!-- Lightning bolt with teal-to-blue gradient -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+  </defs>
+  <path d="M62 10L30 55H50L38 90L72 45H52L62 10Z" fill="url(#g)"/>
+</svg>
