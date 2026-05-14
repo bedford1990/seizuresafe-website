@@ -264,13 +264,49 @@
       overflow:hidden;background:rgba(255,255,255,0.025);
     }
     .survey-embed-wrap iframe { width:100%;border:none;display:block;min-height:520px; }
-    /* Placeholder shown until Google Form embed is added */
-    .survey-placeholder {
-      min-height:320px;display:flex;flex-direction:column;
-      align-items:center;justify-content:center;
-      gap:16px;padding:48px;text-align:center;
+    /* ─── Survey eligibility gate ─── */
+    .survey-gate {
+      padding:36px 32px;text-align:center;
     }
-    .survey-placeholder p { font-size:14px;color:var(--muted); }
+    .survey-gate p {
+      font-size:16px;color:var(--white);font-weight:500;
+      line-height:1.6;margin-bottom:28px;
+    }
+    .survey-gate-btns {
+      display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+    }
+    .gate-btn-yes, .gate-btn-no {
+      display:inline-flex;align-items:center;gap:9px;
+      border-radius:10px;padding:13px 28px;
+      font-family:'Inter',sans-serif;font-size:15px;font-weight:600;
+      cursor:pointer;border:none;transition:opacity 0.2s,transform 0.15s;letter-spacing:-0.2px;
+    }
+    .gate-btn-yes { background:var(--teal);color:#0d1b2a; }
+    .gate-btn-yes:hover { opacity:0.88;transform:translateY(-1px); }
+    .gate-btn-no { background:rgba(255,255,255,0.07);color:var(--white);border:1px solid var(--border); }
+    .gate-btn-no:hover { background:rgba(255,255,255,0.12);transform:translateY(-1px); }
+    .survey-no-msg {
+      padding:36px 32px;text-align:center;
+    }
+    .survey-no-msg h3 { font-size:18px;font-weight:700;margin-bottom:10px; }
+    .survey-no-msg p { font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:18px; }
+    .survey-no-msg a {
+      color:var(--teal);font-size:14px;font-weight:500;text-decoration:none;
+    }
+    .survey-no-msg a:hover { text-decoration:underline; }
+    .survey-back-btn {
+      margin-top:16px;background:none;border:none;
+      color:var(--muted);font-family:'Inter',sans-serif;
+      font-size:13px;cursor:pointer;text-decoration:underline;
+    }
+    .survey-back-btn:hover { color:var(--white); }
+    /* Survey entry button state */
+    .survey-entry {
+      min-height:220px;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      gap:18px;padding:48px;text-align:center;
+    }
+    .survey-entry p { font-size:14px;color:var(--muted); }
 
     /* ─── Can you help ─── */
     .help-section { padding:100px 0;border-top:1px solid var(--border); }
@@ -553,19 +589,52 @@
         </div>
         <div>
           <div class="survey-embed-wrap">
-            <!--
-              HOW TO ADD YOUR GOOGLE FORM:
-              1. Open your Google Form
-              2. Click "Send" (top right) → click the "<>" embed tab
-              3. Copy the full <iframe ...></iframe> tag
-              4. Delete the survey-placeholder div below
-              5. Paste your iframe tag in its place
-            -->
-            <div class="survey-placeholder">
-              <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#2dd4bf" stroke-width="1.5">
+            <!-- Step 0: entry button -->
+            <div class="survey-entry" id="surveyEntry">
+              <svg width="38" height="38" fill="none" viewBox="0 0 24 24" stroke="#2dd4bf" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
               </svg>
-              <p>Survey coming soon.<br/>Check back shortly.</p>
+              <p>Takes 3 minutes. No personal information required.</p>
+              <button class="scroll-btn" id="startSurveyBtn" style="margin-top:4px;">
+                Take the survey
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Step 1: eligibility gate -->
+            <div class="survey-gate" id="surveyGate" style="display:none;">
+              <p>Have you been diagnosed with epilepsy<br/>or a seizure disorder by a medical professional?</p>
+              <div class="survey-gate-btns">
+                <button class="gate-btn-yes" id="gateYes">Yes, I have</button>
+                <button class="gate-btn-no"  id="gateNo">No, I haven't</button>
+              </div>
+            </div>
+
+            <!-- Step 2a: not diagnosed -->
+            <div class="survey-no-msg" id="surveyNoMsg" style="display:none;">
+              <h3>Thanks for your interest</h3>
+              <p>SeizureSafe is currently designed for people living with diagnosed epilepsy or seizure disorders. We aren't accepting registrations for others right now.</p>
+              <p>If you're a carer, family member, or just want to follow along —<br/>
+                <a href="mailto:shaun@seizuresafe.com.au?subject=SeizureSafe%20Interest">email us at shaun@seizuresafe.com.au</a>
+              </p>
+              <button class="survey-back-btn" id="surveyBackNo">Go back</button>
+            </div>
+
+            <!-- Step 2b: diagnosed — show form -->
+            <div id="surveyFormWrap" style="display:none;">
+              <!-- ↓ Google Form embed — seizuresafe.app survey ↓ -->
+              <iframe
+                src="https://docs.google.com/forms/d/e/1FAIpQLScAKFZxDKM8b_fvUMXhb7F798XctT0vVHb1y1xFCLKz3ddxHQ/viewform?embedded=true"
+                width="100%" height="3273"
+                frameborder="0" marginheight="0" marginwidth="0"
+                title="SeizureSafe registration survey">
+                Loading…
+              </iframe>
+              <div style="padding:16px 24px;text-align:center;">
+                <button class="survey-back-btn" id="surveyBackYes">Go back</button>
+              </div>
             </div>
           </div>
         </div>
@@ -626,8 +695,10 @@
 
       <!-- Contact form — Web3Forms (free). Get your key at web3forms.com → replace YOUR_ACCESS_KEY -->
       <form class="contact-form" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
-        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY" />
+        <!-- ↓ Web3Forms key — tied to shaun@seizuresafe.com.au ↓ -->
+        <input type="hidden" name="access_key" value="05bf5f44-588c-4e81-891b-118b22fbfc85" />
         <input type="hidden" name="from_name" value="SeizureSafe Website" />
+        <input type="hidden" name="to" value="shaun@seizuresafe.com.au" />
         <input type="hidden" name="redirect" value="false" />
         <input type="email" name="email" placeholder="Your email address" required autocomplete="email" />
         <input type="text" name="subject" placeholder="Subject" required />
@@ -717,6 +788,24 @@
       }
     });
   }
+
+  // ─── Survey eligibility gate ──────────────────────────────────────────────
+  const surveyEntry   = document.getElementById('surveyEntry');
+  const surveyGate    = document.getElementById('surveyGate');
+  const surveyNoMsg   = document.getElementById('surveyNoMsg');
+  const surveyFormWrap= document.getElementById('surveyFormWrap');
+
+  function showSurveyState(show) {
+    [surveyEntry, surveyGate, surveyNoMsg, surveyFormWrap].forEach(el => { if (el) el.style.display = 'none'; });
+    if (show) show.style.display = '';
+  }
+
+  document.getElementById('startSurveyBtn').addEventListener('click', () => showSurveyState(surveyGate));
+  document.getElementById('gateYes').addEventListener('click', () => showSurveyState(surveyFormWrap));
+  document.getElementById('gateNo').addEventListener('click',  () => showSurveyState(surveyNoMsg));
+  document.getElementById('surveyBackNo').addEventListener('click', () => showSurveyState(surveyEntry));
+  });
+  document.getElementById('surveyBackYes').addEventListener('click', () => showSurveyState(surveyEntry));
 
   // ─── Video carousel ────────────────────────────────────────────────────────
   const track   = document.getElementById('track');
