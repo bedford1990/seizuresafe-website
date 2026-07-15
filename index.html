@@ -328,6 +328,63 @@
     }
     .survey-entry p { font-size:14px;color:var(--muted); }
 
+    /* ─── Share your story ─── */
+    .story-section { padding:100px 0;border-top:1px solid var(--border); }
+    .story-disclaimer {
+      display:flex;align-items:flex-start;gap:12px;
+      background:rgba(45,212,191,0.06);
+      border:1px solid rgba(45,212,191,0.2);
+      border-radius:12px;padding:16px 20px;
+      margin:36px 0 14px;
+    }
+    .story-disclaimer p { font-size:14px;color:var(--white);line-height:1.6;margin:0; }
+    .story-disclaimer strong { color:var(--teal);font-weight:600; }
+    .story-use-note {
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--border);
+      border-radius:12px;padding:16px 20px;
+      margin-bottom:44px;
+    }
+    .story-use-note p { font-size:13px;color:var(--muted);line-height:1.65;margin:0; }
+    .story-form {
+      max-width:640px;margin:0 auto;
+      display:flex;flex-direction:column;gap:14px;
+    }
+    .story-form .field-label {
+      font-size:14px;font-weight:600;color:var(--white);
+      margin:8px 0 -4px;letter-spacing:-0.2px;
+    }
+    .story-form input[type="text"],
+    .story-form input[type="email"],
+    .story-form textarea {
+      width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      border-radius:10px;padding:14px 18px;
+      font-family:'Inter',sans-serif;font-size:15px;color:var(--white);
+      outline:none;transition:border-color 0.2s;
+    }
+    .story-form input::placeholder,
+    .story-form textarea::placeholder { color:var(--muted); }
+    .story-form input:focus,
+    .story-form textarea:focus { border-color:rgba(45,212,191,0.5); }
+    .story-form textarea { resize:vertical;min-height:180px;line-height:1.6; }
+    .story-form .send-btn {
+      background:var(--teal);color:#0d1b2a;border:none;border-radius:10px;
+      padding:14px 28px;font-family:'Inter',sans-serif;
+      font-size:15px;font-weight:700;cursor:pointer;
+      transition:opacity 0.2s,transform 0.15s;letter-spacing:-0.2px;
+      margin-top:8px;
+    }
+    .story-form .send-btn:hover { opacity:0.88;transform:translateY(-1px); }
+    .story-form .send-btn:disabled { opacity:0.5;cursor:default;transform:none; }
+    .story-success {
+      display:none;text-align:center;padding:32px 28px;
+      background:rgba(45,212,191,0.07);
+      border:1px solid rgba(45,212,191,0.25);
+      border-radius:12px;color:var(--teal);
+      font-size:15px;font-weight:500;line-height:1.6;
+      max-width:640px;margin:0 auto;
+    }
+
     /* ─── Can you help ─── */
     .help-section { padding:100px 0;border-top:1px solid var(--border); }
     .role-grid { display:flex;flex-wrap:wrap;gap:12px;margin-top:40px; }
@@ -994,6 +1051,48 @@
     </div>
   </section>
 
+  <!-- ─── Share your story ─── -->
+  <section class="story-section" id="story">
+    <div class="container">
+      <div class="section-label">Lived Experience</div>
+      <h2 class="section-title">Share your story.</h2>
+      <p class="section-desc">The world sees seizures through Hollywood. It doesn't see the reality. Help change that by sharing your worst moments, so others understand what epilepsy really is.</p>
+
+      <div class="story-disclaimer">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#2dd4bf" stroke-width="2" style="flex-shrink:0;margin-top:2px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p><strong>Anonymous by design.</strong> If you include your name in the story, it will be removed before it's used anywhere. Only what you write below leaves this page. Your email (optional) is only for us to follow up privately, and will never be shared publicly.</p>
+      </div>
+
+      <div class="story-use-note">
+        <p>Stories submitted here may be used in future public testimonials, or turned into very realistic, unflinching re-enactments to show what living with epilepsy really means. By submitting, you're giving permission for your story to be used in these ways, always without your name attached.</p>
+      </div>
+
+      <form class="story-form" id="storyForm" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="05bf5f44-588c-4e81-891b-118b22fbfc85" />
+        <input type="hidden" name="from_name" value="SeizureSafe Story Submission" />
+        <input type="hidden" name="subject" value="New story submission - SeizureSafe" />
+        <input type="hidden" name="to" value="shaun@seizuresafe.com.au" />
+        <input type="hidden" name="redirect" value="false" />
+
+        <input type="text" name="seizure_types" placeholder="What types of seizures do you have?" />
+
+        <label class="field-label">Your story</label>
+        <textarea name="story" placeholder="What was the worst moment? What did people around you not see? What do you wish others understood about living with epilepsy?" required></textarea>
+
+        <label class="field-label">Email (optional, only if you'd like a private follow-up)</label>
+        <input type="email" name="email" placeholder="your@email.com" autocomplete="email" />
+
+        <button type="submit" class="send-btn" id="storySendBtn">Submit story</button>
+      </form>
+
+      <div class="story-success" id="storySuccess">
+        Thank you for sharing. Your story helps others understand what epilepsy really looks like.
+      </div>
+    </div>
+  </section>
+
   <!-- ─── Can you help ─── -->
   <section class="help-section">
     <div class="container">
@@ -1136,6 +1235,36 @@
       } catch {
         sendBtn.disabled = false;
         sendBtn.textContent = 'Send message';
+        alert('Something went wrong. Please try again.');
+      }
+    });
+  }
+
+  // ─── Story submission ─────────────────────────────────────────────────────
+  const storyForm     = document.getElementById('storyForm');
+  const storySendBtn  = document.getElementById('storySendBtn');
+  const storySuccess  = document.getElementById('storySuccess');
+
+  if (storyForm) {
+    storyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      storySendBtn.disabled = true;
+      storySendBtn.textContent = 'Sending...';
+      try {
+        const res  = await fetch('https://api.web3forms.com/submit', { method:'POST', body: new FormData(storyForm) });
+        const json = await res.json();
+        if (json.success) {
+          storyForm.style.display    = 'none';
+          storySuccess.style.display = 'block';
+          storySuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          storySendBtn.disabled    = false;
+          storySendBtn.textContent = 'Submit story';
+          alert('Something went wrong. Please try again.');
+        }
+      } catch {
+        storySendBtn.disabled    = false;
+        storySendBtn.textContent = 'Submit story';
         alert('Something went wrong. Please try again.');
       }
     });
