@@ -471,6 +471,7 @@
       100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
     }
     .featured-video-wrap {
+      position: relative;
       margin: 0 0 40px;
       border-radius: 16px; overflow: hidden;
       border: 1px solid var(--border);
@@ -480,6 +481,63 @@
     .featured-video-wrap iframe {
       width: 100%; aspect-ratio: 16 / 9;
       border: none; display: block;
+    }
+
+    /* ─── Video end overlay ─── */
+    .video-end-overlay {
+      position: absolute; inset: 0;
+      background: rgba(13, 27, 42, 0.55);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      display: none;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; z-index: 5;
+      animation: overlay-fade-in 0.35s ease-out;
+    }
+    .video-end-overlay.active { display: flex; }
+    @keyframes overlay-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .video-end-overlay .donate-btn {
+      background: var(--teal); color: #0d1b2a;
+      border-radius: 12px; padding: 14px 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px; font-weight: 700;
+      text-decoration: none; letter-spacing: -0.3px;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 12px 28px -8px rgba(45, 212, 191, 0.5);
+    }
+    .video-end-overlay .donate-btn:hover {
+      opacity: 0.9; transform: translateY(-2px);
+    }
+    .replay-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 12px; padding: 11px 22px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 500;
+      color: #ffffff; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .replay-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #ffffff;
+    }
+
+    /* ─── Clickable QR ─── */
+    .qr-link {
+      display: block; cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .qr-link:hover {
+      transform: translateY(-2px);
+    }
+    .qr-link img {
+      display: block;
     }
 
     /* ─── Progress checklist ─── */
@@ -618,11 +676,26 @@
       <div class="featured-badge">As featured on Australian news</div>
       <div class="featured-video-wrap">
         <iframe
-          src="https://www.youtube.com/embed/Ku_76mWbP2U"
+          id="ytPlayer"
+          src="https://www.youtube.com/embed/Ku_76mWbP2U?enablejsapi=1"
           title="SeizureSafe on Australian news — Shaun Bedford's story"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen loading="lazy"></iframe>
+        <div class="video-end-overlay" id="videoEndOverlay">
+          <a href="https://gofund.me/0ba972d41" class="donate-btn" target="_blank" rel="noopener">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+            Donate on GoFundMe
+          </a>
+          <button class="replay-btn" id="replayBtn">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Replay
+          </button>
+        </div>
       </div>
 
       <div class="progress-checklist">
@@ -691,8 +764,10 @@
           </a>
         </div>
         <div class="donate-qr-wrap">
-          <img src="qr-code%202.png" alt="Scan to donate to SeizureSafe on GoFundMe" />
-          <span class="donate-qr-label">Scan to donate</span>
+          <a href="https://gofund.me/0ba972d41" class="qr-link" target="_blank" rel="noopener" aria-label="Open GoFundMe campaign in new tab">
+            <img src="qr-code%202.png" alt="Scan or click to donate to SeizureSafe on GoFundMe" />
+          </a>
+          <span class="donate-qr-label">Scan or tap to donate</span>
         </div>
       </div>
 
@@ -1130,6 +1205,50 @@
     }
   };
 
+  // ─── YouTube video end overlay ────────────────────────────────────────────
+  // Loads YouTube's iframe API. When the video ends, show a semi-transparent
+  // overlay with Donate + Replay buttons. Replay restarts the video, which
+  // hides the overlay; when it ends again, overlay reappears (loop).
+
+  const videoOverlay = document.getElementById('videoEndOverlay');
+  const replayBtn = document.getElementById('replayBtn');
+  let ytPlayer = null;
+
+  // Load YouTube IFrame Player API asynchronously
+  (function loadYouTubeAPI() {
+    if (window.YT && window.YT.Player) return; // already loaded
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScript = document.getElementsByTagName('script')[0];
+    firstScript.parentNode.insertBefore(tag, firstScript);
+  })();
+
+  // YouTube API calls this global function when it finishes loading
+  window.onYouTubeIframeAPIReady = function () {
+    ytPlayer = new YT.Player('ytPlayer', {
+      events: {
+        onStateChange: function (event) {
+          if (event.data === YT.PlayerState.ENDED) {
+            videoOverlay.classList.add('active');
+          } else if (event.data === YT.PlayerState.PLAYING) {
+            videoOverlay.classList.remove('active');
+          }
+        }
+      }
+    });
+  };
+
+  if (replayBtn) {
+    replayBtn.addEventListener('click', () => {
+      if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+        ytPlayer.seekTo(0);
+        ytPlayer.playVideo();
+      }
+      videoOverlay.classList.remove('active');
+    });
+  }
+
+  // ─── Share buttons ────────────────────────────────────────────────────────
   document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const target = SHARE_TARGETS[btn.dataset.share];
