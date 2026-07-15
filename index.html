@@ -263,7 +263,27 @@
       border:1px solid var(--border);border-radius:16px;
       overflow:hidden;background:rgba(255,255,255,0.025);
     }
-    .survey-embed-wrap iframe { width:100%;border:none;display:block;min-height:520px; }
+    .survey-embed-wrap iframe {
+      width: 100%; border: none; display: block;
+      height: min(900px, 85vh);
+      min-height: 500px;
+    }
+    .survey-thanks-intro {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 16px 20px;
+      background: rgba(45, 212, 191, 0.06);
+      border-bottom: 1px solid rgba(45, 212, 191, 0.2);
+    }
+    .survey-thanks-intro svg {
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .survey-thanks-intro p {
+      font-size: 14px; color: var(--white);
+      line-height: 1.55; margin: 0;
+    }
+    .survey-thanks-intro strong {
+      color: var(--teal); font-weight: 600;
+    }
     /* ─── Survey eligibility gate ─── */
     .survey-gate {
       padding:36px 32px;text-align:center;
@@ -671,7 +691,7 @@
           </a>
         </div>
         <div class="donate-qr-wrap">
-          <img src="qr-code 2.png" alt="Scan to donate to SeizureSafe on GoFundMe" />
+          <img src="qr-code%202.png" alt="Scan to donate to SeizureSafe on GoFundMe" />
           <span class="donate-qr-label">Scan to donate</span>
         </div>
       </div>
@@ -873,24 +893,20 @@
               </div>
             </div>
 
-            <!-- Step 2a: not diagnosed -->
-            <div class="survey-no-msg" id="surveyNoMsg" style="display:none;">
-              <h3>Thanks for your interest</h3>
-              <p>SeizureSafe is currently designed for people living with diagnosed epilepsy or seizure disorders. We aren't accepting registrations for others right now.</p>
-              <p>If you're a carer, family member, or just want to follow along —<br/>
-                <a href="mailto:shaun@seizuresafe.com.au?subject=SeizureSafe%20Interest">email us at shaun@seizuresafe.com.au</a>
-              </p>
-              <button class="survey-back-btn" id="surveyBackNo">Go back</button>
-            </div>
-
-            <!-- Step 2b: diagnosed — show form -->
+            <!-- Step 2: form embed (form handles Yes/No branching internally) -->
             <div id="surveyFormWrap" style="display:none;">
+              <div class="survey-thanks-intro">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#2dd4bf" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+                <p><strong>Thanks for taking the time.</strong> Your answers directly shape what gets built and who SeizureSafe can help.</p>
+              </div>
               <!-- ↓ Google Form embed — seizuresafe.app survey ↓ -->
               <iframe
                 src="https://docs.google.com/forms/d/e/1FAIpQLScAKFZxDKM8b_fvUMXhb7F798XctT0vVHb1y1xFCLKz3ddxHQ/viewform?embedded=true"
-                width="100%" height="3273"
                 frameborder="0" marginheight="0" marginwidth="0"
-                title="SeizureSafe registration survey">
+                title="SeizureSafe registration survey"
+                loading="lazy">
                 Loading…
               </iframe>
               <div style="padding:16px 24px;text-align:center;">
@@ -1063,8 +1079,7 @@
 
   document.getElementById('startSurveyBtn').addEventListener('click', () => showSurveyState(surveyGate));
   document.getElementById('gateYes').addEventListener('click', () => showSurveyState(surveyFormWrap));
-  document.getElementById('gateNo').addEventListener('click',  () => showSurveyState(surveyNoMsg));
-  document.getElementById('surveyBackNo').addEventListener('click', () => showSurveyState(surveyEntry));
+  document.getElementById('gateNo').addEventListener('click',  () => showSurveyState(surveyFormWrap));
   document.getElementById('surveyBackYes').addEventListener('click', () => showSurveyState(surveyEntry));
 
   // ─── Video carousel ────────────────────────────────────────────────────────
